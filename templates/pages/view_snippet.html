@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+
 <!-- Begin page content -->
 
 {% block content %}
@@ -13,8 +13,7 @@
 
         <div class="row">
             <div class="col">
-                <p>На данной страницы будут отображаться все созданные сниппеты.</p>
-                <p>Пока тут просто пример, но скоро заменим реальными сниппетами из БД!</p>
+
                 <hr>
             </div>
         </div>
@@ -26,19 +25,17 @@
                     <tr>
                         <th scope="col">ID</th>
                         <th scope="col">Название</th>
-                        <th scope="col">Дата создания</th>
+                        <th scope="col">Код</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for snippet in snippets  %}    
+                      
                         <tr>
                             <td scope="row">{{ snippet.id }}</td>
-                            
                             <td><a href={% url 'get_sn' snippetid=snippet.id %}>{{ snippet.name }}</a></td>
-                            {# https://docs.djangoproject.com/en/5.0/ref/templates/builtins/#std-templatefilter-date #}
-                            <td>{{ snippet.creation_date | date:"Y-m-d H:i:s"}}</td>
+                            <td>{{ snippet.code}}</td>
                         </tr>
-                    {% endfor %}
+                    
                     </tbody>
                 </table>
                 <div align="right">
