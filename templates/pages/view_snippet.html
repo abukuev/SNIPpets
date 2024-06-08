@@ -1,8 +1,7 @@
-{% extends "base.html" %}
-
-<!-- Begin page content -->
+{% extends 'base.html' %}
 
 {% block content %}
+    <!-- Begin page content -->
     <div class="container">
         <div class="row">
             <div class="col text-center">
@@ -14,34 +13,28 @@
         <div class="row">
             <div class="col">
 
-                <hr>
-            </div>
-        </div>
+                <fieldset disabled>
+                    <div class="row disabled">
+                        <div class="col col-8">
+                            Название: <input type="text" value="{{ snippet.name }}" class="form-control">
+                        </div>
+                        <div class="col col-4">
+                            Дата создания:<input type="text" value="{{ snippet.creation_date | date:"d-m-Y" }}" class="form-control">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <div class="p-2 h-100" style="border:1px solid #ced4da; border-radius:5px;">
+                                <p>
+                                    {{ snippet.code }}
+                                </p>                
+                            </div>                
+                        </div>
+                    </div>
+                 </fieldset>
 
-        <div class="row">
-            <div class="col">
-                <table class="table table-striped">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Название</th>
-                        <th scope="col">Код</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                      
-                        <tr>
-                            <td scope="row">{{ snippet.id }}</td>
-                            <td><a href={% url 'get_sn' snippetid=snippet.id %}>{{ snippet.name }}</a></td>
-                            <td>{{ snippet.code}}</td>
-                        </tr>
-                    
-                    </tbody>
-                </table>
-                <div align="right">
-                    <i style="color: gray;">Всего сниппетов: 2</i>
-                </div>
             </div>
         </div>
     </div>
-{% endblock  %}
+{% endblock %}

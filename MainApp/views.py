@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import Http404, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from MainApp.models import Snippet
 
@@ -21,9 +21,14 @@ def snippets_page(request):
     return render(request, 'pages/view_snippets.html', context)
 
 def snippet_view(request,snippetid):
-    snipppet = Snippet.objects.get(id=snippetid)
-    context = {
-                
-                'snippet': snipppet
-               }
-    return render(request, 'pages/view_snippet.html', context)
+    try:
+        snipppet = Snippet.objects.get(id=snippetid)
+    except Exception:
+        return HttpResponseNotFound(f"Snipped ID= {snippetid} not found")
+    else:
+        context = {
+                    'pagename': "Просмотр Сниппета",
+                    'snippet': snipppet
+                }
+        return render(request, 'pages/view_snippet.html', context)
+    
