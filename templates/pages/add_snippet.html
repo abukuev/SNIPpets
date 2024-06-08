@@ -18,7 +18,12 @@
                         {{ form.as_p }}
                     <div class="form_group_row">
                         <div class="col-6">
+                            {% if "create" in operation %}
                             <input type="submit" class="btn btn-primary btn-block" value="Создать сниппет"/>
+                            {% endif %}
+                            {% if "edit" in operation %}
+                            <input type="submit" class="btn btn-primary btn-block" value="Сохранить сниппет"/>
+                            {% endif %}
                         </div>
                     </div>
                     

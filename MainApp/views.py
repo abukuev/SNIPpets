@@ -14,6 +14,7 @@ def add_snippet_page(request):
         form = SnippetForm()
         context = {'pagename': 'Добавление нового сниппета',
                 'form':form,
+                'operation':'create',
         }
         return render(request, 'pages/add_snippet.html', context)
     if request.method =="POST":
@@ -62,10 +63,7 @@ def snippets_edit(request,snippetid):
         try:
             snippet = Snippet.objects.get(id=snippetid)
             print(snippet.__dict__)
-            form = SnippetForm({'name':snippet.name,
-                                'lang': snippet.lang,
-                                'code':snippet.code
-                                })
+            form = SnippetForm(instance=snippet)
             
             print(form.__dict__)
             
@@ -75,9 +73,10 @@ def snippets_edit(request,snippetid):
             context = {
                         'pagename': "Редактирование Сниппета",
                         'form': form,
-                        'snippetid':snippetid
+                        'snippetid':snippetid,
+                        'operation':'edit',
                     }
-            return render(request, 'pages/edit_snippet.html', context)
+            return render(request, 'pages/add_snippet.html', context)
     if request.method=='POST':
         data  = request.POST
         snippet = Snippet.objects.get(id=snippetid)
