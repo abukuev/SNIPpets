@@ -34,6 +34,11 @@
                         
                     </div>
                  </fieldset>
+                 <br>
+                 <form action="{% url "edit_sn"  snippetid=snippet.id %}">
+                    <input type="submit" class="btn btn-primary btn-block" value="Редактировать сниппет" />
+                </form>
+                <hr>
                  <form action="{% url "del_sn"  snippetid=snippet.id %}">
                     <input type="submit" class="btn btn-primary btn-block" value="Удалить сниппет" />
                 </form>

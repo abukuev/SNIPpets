@@ -18,6 +18,7 @@ def add_snippet_page(request):
         return render(request, 'pages/add_snippet.html', context)
     if request.method =="POST":
             form = SnippetForm(request.POST)
+            print(request.POST)
             if form.is_valid():
                 form.save()
                 return redirect("add_sn")
@@ -33,27 +34,58 @@ def add_snippet_page(request):
 #             return render(request, "pages/add_snippet.html", {'form':form})
     
 def snippets_page(request):
-    snipppets = Snippet.objects.all()
+    snippets = Snippet.objects.all()
+
     context = {
                 'pagename': 'Просмотр сниппетов',
-                'snippets': snipppets
+                'snippets':snippets,
                }
+    print(context)
     return render(request, 'pages/view_snippets.html', context)
 
 def snippet_view(request,snippetid):
     try:
-        snipppet = Snippet.objects.get(id=snippetid)
+        snippet = Snippet.objects.get(id=snippetid)
+        
+        
     except ObjectDoesNotExist:
         return HttpResponseNotFound(f"Snipped ID= {snippetid} not found")
     else:
         context = {
                     'pagename': "Просмотр Сниппета",
-                    'snippet': snipppet
+                    'snippet':snippet,
                 }
         return render(request, 'pages/view_snippet.html', context)
     
 def snippets_edit(request,snippetid):
-    return HttpResponseNotFound()
+    if request.method=='GET':
+        try:
+            snippet = Snippet.objects.get(id=snippetid)
+            print(snippet.__dict__)
+            form = SnippetForm({'name':snippet.name,
+                                'lang': snippet.lang,
+                                'code':snippet.code
+                                })
+            
+            print(form.__dict__)
+            
+        except ObjectDoesNotExist:
+            return HttpResponseNotFound(f"Snipped ID= {snippetid} not found")
+        else:
+            context = {
+                        'pagename': "Редактирование Сниппета",
+                        'form': form,
+                        'snippetid':snippetid
+                    }
+            return render(request, 'pages/edit_snippet.html', context)
+    if request.method=='POST':
+        data  = request.POST
+        snippet = Snippet.objects.get(id=snippetid)
+        snippet.name = data['name']
+        snippet.lang = data['lang']
+        snippet.code = data['code']
+        snippet.save()
+        return redirect("edit_sn",snippetid)
 
 def snippets_del(request,snippetid):
     try:
