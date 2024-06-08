@@ -3,6 +3,29 @@ from django.shortcuts import render, redirect
 from MainApp.models import Snippet
 from MainApp.forms import SnippetForm
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import auth
+
+def login(request):
+    if request.method == 'POST':
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        # print("username =", username)
+        # print("password =", password)
+        user = auth.authenticate(request, username=username,
+        password=password)
+        if user is not None:
+            auth.login(request, user)
+        else:
+            # Return error message
+            pass
+        return redirect('home')
+
+
+def logout(request):
+    auth.logout(request)
+    return redirect('home')
+
+
 
 def index_page(request):
     context = {'pagename': 'PythonBin'}
@@ -19,9 +42,11 @@ def add_snippet_page(request):
         return render(request, 'pages/add_snippet.html', context)
     if request.method =="POST":
             form = SnippetForm(request.POST)
-            print(request.POST)
             if form.is_valid():
-                form.save()
+                snipped = form.save(commit=False)
+                if request.user.is_authenticated:
+                    snipped.user= request.user
+                    snipped.save()
                 return redirect("add_sn")
             return render(request, "pages/add_snippet.html", {'form':form})
 
@@ -41,7 +66,6 @@ def snippets_page(request):
                 'pagename': 'Просмотр сниппетов',
                 'snippets':snippets,
                }
-    print(context)
     return render(request, 'pages/view_snippets.html', context)
 
 def snippet_view(request,snippetid):
@@ -62,10 +86,10 @@ def snippets_edit(request,snippetid):
     if request.method=='GET':
         try:
             snippet = Snippet.objects.get(id=snippetid)
-            print(snippet.__dict__)
+            
             form = SnippetForm(instance=snippet)
             
-            print(form.__dict__)
+        
             
         except ObjectDoesNotExist:
             return HttpResponseNotFound(f"Snipped ID= {snippetid} not found")

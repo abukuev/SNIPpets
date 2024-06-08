@@ -27,6 +27,7 @@
                         <th scope="col">ID</th>
                         <th scope="col">Название</th>
                         <th scope="col">Дата создания</th>
+                        <th scope="col">Создатель</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -37,6 +38,7 @@
                             <td><a href={% url 'get_sn' snippetid=snippet.id %}>{{ snippet.name }}</a></td>
                             {# https://docs.djangoproject.com/en/5.0/ref/templates/builtins/#std-templatefilter-date #}
                             <td>{{ snippet.creation_date | date:"Y-m-d H:i:s"}}</td>
+                            <td>{% if snippet.user  %}{{ snippet.user}}{% endif %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
