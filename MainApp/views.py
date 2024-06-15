@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 def login(request):
     if request.method == 'POST':
         redirect_url = request.POST.get("redirect_url")
-        print(f'get from login {redirect_url}')
         username = request.POST.get("username")
         password = request.POST.get("password")
         # print("username =", username)
@@ -37,7 +36,7 @@ def index_page(request):
                'redirect_url':request.GET.get('next', '')}
     return render(request, 'pages/index.html', context)
 
-
+@login_required(login_url='/')
 def add_snippet_page(request):
     if request.method=='GET':
         form = SnippetForm()
@@ -68,10 +67,19 @@ def add_snippet_page(request):
 def snippets_page(request):
     query = Q(public=True)
     if request.user.is_authenticated:
-        query.add(Q(user_id=request.user.id), Q.OR)
+        query.add(Q(user=request.user), Q.OR)
 
     snippets = Snippet.objects.filter(query)
     print(snippets)
+    context = {
+                'pagename': 'Просмотр сниппетов',
+                'snippets':snippets,
+               }
+    return render(request, 'pages/view_snippets.html', context)
+def snippets_my(request):
+
+    snippets = Snippet.objects.filter(user_id=request.user)
+
     context = {
                 'pagename': 'Просмотр сниппетов',
                 'snippets':snippets,
@@ -81,14 +89,15 @@ def snippets_page(request):
 def snippet_view(request,snippetid):
     try:
         snippet = Snippet.objects.get(id=snippetid)
-        
-        
+        if snippet.user==request.user: isuser=True
+        else: isuser=False
     except ObjectDoesNotExist:
         return HttpResponseNotFound(f"Snipped ID= {snippetid} not found")
     else:
         context = {
                     'pagename': "Просмотр Сниппета",
                     'snippet':snippet,
+                    'ismy':isuser
                 }
         return render(request, 'pages/view_snippet.html', context)
     
@@ -138,5 +147,6 @@ def snippets_del(request,snippetid):
     except ObjectDoesNotExist:
         return HttpResponseNotFound(f"Snipped ID= {snippetid} not found")
     else: 
-        snipppet.delete()
+        if snipppet.user==request.user:
+            snipppet.delete()
         return redirect("view_sn")
