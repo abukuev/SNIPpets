@@ -45,7 +45,11 @@
             labelledby="navbarDropdown">
             <form class="w-100 px-4 py-3" action="{% url "login" %}" method="post">
             {% csrf_token %} 
+         
+            <input name='redirect_url' type="hidden" value="{{ redirect_url }}" >
+
             <div class="form-group form-inline">
+            
             <input name='username' type="text" class="form-control"  placeholder="Username" required>
             </div>
             <div class="form-group form-inline">

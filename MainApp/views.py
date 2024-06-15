@@ -76,12 +76,13 @@ def snippets_page(request):
                 'snippets':snippets,
                }
     return render(request, 'pages/view_snippets.html', context)
+@login_required(login_url='/')
 def snippets_my(request):
 
     snippets = Snippet.objects.filter(user_id=request.user)
 
     context = {
-                'pagename': 'Просмотр сниппетов',
+                'pagename': 'Мои сниппеты',
                 'snippets':snippets,
                }
     return render(request, 'pages/view_snippets.html', context)
