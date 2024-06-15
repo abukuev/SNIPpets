@@ -1,7 +1,7 @@
 from django.http import Http404, HttpResponseNotFound ,HttpResponse
 from django.shortcuts import render, redirect
 from MainApp.models import Snippet
-from MainApp.forms import SnippetForm
+from MainApp.forms import SnippetForm , UserRegistrationForm , CommentForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import auth
 from django.db.models import Q
@@ -28,7 +28,22 @@ def logout(request):
     auth.logout(request)
     return redirect('home')
 
-
+def create_user(request):
+    context = {'pagename': 'Регистрация нового пользователя'}
+    # Создаем пустую форму при запросе методом GET
+    if request.method == "GET":
+        form = UserRegistrationForm()
+        context['form'] = form
+        return render(request, 'pages/registration.html', context)
+    
+    # Получаем данные из формы и на их основе создаем новый snippet В БД
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+        context['form'] = form
+        return render(request, "pages/registration.html", context)
 
 def index_page(request):
     print(request.GET.get('next', ''))
@@ -74,6 +89,7 @@ def snippets_page(request):
     context = {
                 'pagename': 'Просмотр сниппетов',
                 'snippets':snippets,
+                'count': snippets.count(),
                }
     return render(request, 'pages/view_snippets.html', context)
 @login_required(login_url='/')
@@ -84,12 +100,14 @@ def snippets_my(request):
     context = {
                 'pagename': 'Мои сниппеты',
                 'snippets':snippets,
+                'count':snippets.count(),
                }
     return render(request, 'pages/view_snippets.html', context)
 
 def snippet_view(request,snippetid):
     try:
         snippet = Snippet.objects.get(id=snippetid)
+        commentform = CommentForm()
         if snippet.user==request.user: isuser=True
         else: isuser=False
     except ObjectDoesNotExist:
@@ -98,7 +116,8 @@ def snippet_view(request,snippetid):
         context = {
                     'pagename': "Просмотр Сниппета",
                     'snippet':snippet,
-                    'ismy':isuser
+                    'ismy':isuser,
+                    'comment_form':commentform,
                 }
         return render(request, 'pages/view_snippet.html', context)
     
@@ -136,7 +155,7 @@ def snippets_edit(request,snippetid):
         
         if 'public' in data.keys():
             if data['public']=='on':
-                snippet.public = True
+                snippet.public = data.get('public',False)
         else:
             snippet.public = False
         snippet.save()
@@ -151,3 +170,17 @@ def snippets_del(request,snippetid):
         if snipppet.user==request.user:
             snipppet.delete()
         return redirect("view_sn")
+
+@login_required(login_url='/')
+def comment_add(request):
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST)
+        snippetid = request.POST.get('snippetid')
+        print(snippetid)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.author = request.user
+            comment.snippet = Snippet.objects.get(id=snippetid)
+            comment.save()
+            return redirect('get_sn',snippetid=snippetid)
+        raise Http404

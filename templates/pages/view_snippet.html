@@ -35,6 +35,40 @@
                     </div>
                  </fieldset>
                  <br>
+                 
+                 <table border=1>
+                    <tr>
+                        <th>Автор</th>
+                        <th>Комментарий</th>
+                    </tr>
+                    {% for comment in  snippet.comments.all %}
+                    <tr>
+                        <td>{{comment.author.username}}</td>
+                        <td>{{comment.text}}
+                        </tr>         
+                    
+                    {% endfor %}
+                    </table>
+                    <fieldset>
+                {% if request.user.is_authenticated %}
+                 <form action="{% url 'comment_add' %}" method="POST">
+                    {% csrf_token %} 
+                    <input name='snippetid' type="hidden" value="{{ snippet.id }}" >
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <div class="p-2 h-100" style="border:1px solid #ced4da; border-radius:5px;">
+                                
+                                    {{comment_form.as_p}}
+                                            
+                            </div>                
+                        </div>
+                    </div>
+                    <input type="submit" class="btn btn-primary btn-block" value="Добавить комментарий" />
+                    </form>
+                    {% endif %}
+                </fieldset>
+                    <hr>
                  {% if  ismy %}
                  <form action="{% url "edit_sn"  snippetid=snippet.id %}">
                     <input type="submit" class="btn btn-primary btn-block" value="Редактировать сниппет" />
