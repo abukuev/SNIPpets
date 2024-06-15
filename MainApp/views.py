@@ -4,21 +4,25 @@ from MainApp.models import Snippet
 from MainApp.forms import SnippetForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import auth
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 def login(request):
     if request.method == 'POST':
+        redirect_url = request.POST.get("redirect_url")
+        print(f'get from login {redirect_url}')
         username = request.POST.get("username")
         password = request.POST.get("password")
         # print("username =", username)
         # print("password =", password)
-        user = auth.authenticate(request, username=username,
-        password=password)
+        user = auth.authenticate(request, username=username, password=password)
         if user is not None:
             auth.login(request, user)
         else:
             # Return error message
             pass
-        return redirect('home')
+        if redirect_url: return redirect(redirect_url)
+        else: return redirect('home')
 
 
 def logout(request):
@@ -28,7 +32,9 @@ def logout(request):
 
 
 def index_page(request):
-    context = {'pagename': 'PythonBin'}
+    print(request.GET.get('next', ''))
+    context = {'pagename': 'PythonBin',
+               'redirect_url':request.GET.get('next', '')}
     return render(request, 'pages/index.html', context)
 
 
@@ -60,8 +66,12 @@ def add_snippet_page(request):
 #             return render(request, "pages/add_snippet.html", {'form':form})
     
 def snippets_page(request):
-    snippets = Snippet.objects.all()
+    query = Q(public=True)
+    if request.user.is_authenticated:
+        query.add(Q(user_id=request.user.id), Q.OR)
 
+    snippets = Snippet.objects.filter(query)
+    print(snippets)
     context = {
                 'pagename': 'Просмотр сниппетов',
                 'snippets':snippets,
@@ -82,14 +92,18 @@ def snippet_view(request,snippetid):
                 }
         return render(request, 'pages/view_snippet.html', context)
     
+@login_required(login_url='/')
 def snippets_edit(request,snippetid):
     if request.method=='GET':
         try:
             snippet = Snippet.objects.get(id=snippetid)
-            
             form = SnippetForm(instance=snippet)
-            
-        
+            if snippet.user==request.user:
+                
+                operation = 'edit'
+            else:
+                
+                operation='permission_denied'
             
         except ObjectDoesNotExist:
             return HttpResponseNotFound(f"Snipped ID= {snippetid} not found")
@@ -98,18 +112,26 @@ def snippets_edit(request,snippetid):
                         'pagename': "Редактирование Сниппета",
                         'form': form,
                         'snippetid':snippetid,
-                        'operation':'edit',
+                        'operation':operation,
                     }
+            
             return render(request, 'pages/add_snippet.html', context)
+
     if request.method=='POST':
         data  = request.POST
         snippet = Snippet.objects.get(id=snippetid)
         snippet.name = data['name']
         snippet.lang = data['lang']
         snippet.code = data['code']
+        
+        if 'public' in data.keys():
+            if data['public']=='on':
+                snippet.public = True
+        else:
+            snippet.public = False
         snippet.save()
         return redirect("edit_sn",snippetid)
-
+@login_required(login_url='/')
 def snippets_del(request,snippetid):
     try:
         snipppet = Snippet.objects.get(id=snippetid)

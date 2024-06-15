@@ -24,6 +24,10 @@
                             {% if "edit" in operation %}
                             <input type="submit" class="btn btn-primary btn-block" value="Сохранить сниппет"/>
                             {% endif %}
+                            {% if "permission_denied" in operation %}
+                            <p> Нeдостаточно прав доступа </p>
+                            
+                            {% endif %}
                         </div>
                     </div>
                     
@@ -33,6 +37,6 @@
         </div>
     </div>
 {% endblock  %}
-{% include "inc/inc-footer.html" %}
+
 
 

@@ -14,7 +14,6 @@
         <div class="row">
             <div class="col">
                 <p>На данной страницы будут отображаться все созданные сниппеты.</p>
-                <p>Пока тут просто пример, но скоро заменим реальными сниппетами из БД!</p>
                 <hr>
             </div>
         </div>
@@ -28,6 +27,7 @@
                         <th scope="col">Название</th>
                         <th scope="col">Дата создания</th>
                         <th scope="col">Создатель</th>
+                        <th scope="col">Общий</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -39,6 +39,7 @@
                             {# https://docs.djangoproject.com/en/5.0/ref/templates/builtins/#std-templatefilter-date #}
                             <td>{{ snippet.creation_date | date:"Y-m-d H:i:s"}}</td>
                             <td>{% if snippet.user  %}{{ snippet.user}}{% endif %}</td>
+                            <td>{% if snippet.public  %}Да{% else %}Нет{% endif %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
